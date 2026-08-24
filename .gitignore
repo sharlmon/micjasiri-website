@@ -1,0 +1,30 @@
+# Backup archives
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.sql
+backups/
+
+# Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+.htpasswd
+
+# Logs and server-generated files
+*.log
+error_log
+
+# macOS and archive metadata
+.DS_Store
+._*
+__MACOSX/
+
+# Editor files
+.vscode/
+.idea/
