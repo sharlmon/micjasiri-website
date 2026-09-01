@@ -106,6 +106,40 @@ workFilters.forEach((button,index)=>{
 });
 if(workFilters.length)selectWorkPanel(workFilters.find(button=>button.getAttribute('aria-selected')==='true')?.dataset.workFilter||workFilters[0].dataset.workFilter);
 
+const portfolioModal=document.querySelector('[data-portfolio-modal]');
+const portfolioOpeners=[...document.querySelectorAll('[data-portfolio-open]')];
+const portfolioClosers=[...document.querySelectorAll('[data-portfolio-close]')];
+let portfolioTrigger=null;
+
+function closePortfolio(){
+  if(!portfolioModal?.open)return;
+  portfolioModal.close();
+}
+
+function openPortfolio(card){
+  if(!portfolioModal)return;
+  portfolioTrigger=card;
+  const set=(selector,value)=>{const target=portfolioModal.querySelector(selector);if(target)target.textContent=value};
+  const image=portfolioModal.querySelector('[data-portfolio-image]');
+  const link=portfolioModal.querySelector('[data-portfolio-link]');
+  set('[data-portfolio-index]',card.dataset.index);
+  set('[data-portfolio-service]',card.dataset.service);
+  set('[data-portfolio-title]',card.dataset.title);
+  set('[data-portfolio-client]',card.dataset.client);
+  set('[data-portfolio-summary]',card.dataset.summary);
+  const deliverables=portfolioModal.querySelector('[data-portfolio-deliverables]');
+  if(deliverables){deliverables.replaceChildren(...card.dataset.deliverables.split('|').map(item=>{const tag=document.createElement('span');tag.textContent=item;return tag}))}
+  if(image){image.src=card.dataset.image;image.alt=card.dataset.alt}
+  if(link)link.href=card.dataset.link;
+  portfolioModal.showModal();
+  document.body.classList.add('portfolio-modal-open');
+}
+
+portfolioOpeners.forEach(card=>card.addEventListener('click',()=>openPortfolio(card)));
+portfolioClosers.forEach(button=>button.addEventListener('click',closePortfolio));
+portfolioModal?.addEventListener('click',event=>{if(event.target===portfolioModal)closePortfolio()});
+portfolioModal?.addEventListener('close',()=>{document.body.classList.remove('portfolio-modal-open');portfolioTrigger?.focus()});
+
 const atmosphere=document.querySelector('.image-atmosphere');
 const atmosphereImages={'services.html':'assets/work/shell-field-production.jpg','clients.html':'assets/work/conference-audience.jpg'};
 const atmosphereImage=atmosphereImages[location.pathname.split('/').pop()];
