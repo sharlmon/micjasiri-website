@@ -149,18 +149,24 @@ if(atmosphere&&atmosphereImage){
 }
 
 const form=document.querySelector('#contactForm');
-if(form)form.addEventListener('submit',async event=>{
+if(form)form.addEventListener('submit',event=>{
   event.preventDefault();
-  const status=form.querySelector('.form-status');
   if(!form.reportValidity())return;
-  const submit=form.querySelector('button[type="submit"]');
-  submit.disabled=true;submit.textContent='Sending…';status.textContent='';
-  try{
-    const response=await fetch('https://formspree.io/f/mrerowkg',{method:'POST',body:new FormData(form),headers:{Accept:'application/json'}});
-    if(!response.ok)throw new Error('Request failed');
-    form.reset();status.textContent='Thank you. The Mic-Jasiri team will be in touch within 24 hours.';
-  }catch(error){status.textContent='We could not send your message. Please email info@micjasiri.co.ke or call +254 721 561 704.'}
-  finally{submit.disabled=false;submit.textContent='Send message'}
+  const data=new FormData(form);
+  const value=name=>(data.get(name)||'').toString().trim();
+  const message=[
+    'Hi Mic-Jasiri Productions,',
+    'I’d like to book a shoot.',
+    '',
+    `Name: ${value('name')}`,
+    `Email: ${value('email')}`,
+    `Phone: ${value('phone')||'Not provided'}`,
+    `Service: ${value('service')||'Not selected'}`,
+    '',
+    'Project brief:',
+    value('message')
+  ].join('\n');
+  location.href=`https://wa.me/254721561704?text=${encodeURIComponent(message)}`;
 });
 
 const video=document.querySelector('video');
