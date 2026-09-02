@@ -193,9 +193,22 @@ const serviceData={
 const serviceModal=document.querySelector('[data-service-modal]');
 const serviceOpeners=[...document.querySelectorAll('[data-service-open]')];
 const serviceClosers=[...document.querySelectorAll('[data-service-close]')];
+const serviceLightbox=document.querySelector('[data-service-lightbox]');
+const serviceLightboxImage=serviceLightbox?.querySelector('[data-service-lightbox-image]');
+const serviceLightboxCaption=serviceLightbox?.querySelector('[data-service-lightbox-caption]');
 let serviceTrigger=null;
+let serviceLightboxTrigger=null;
 
-function closeService(){if(serviceModal?.open)serviceModal.close()}
+function closeServiceLightbox(){
+  if(!serviceLightbox||serviceLightbox.hidden)return;
+  serviceLightbox.hidden=true;serviceModal?.classList.remove('lightbox-open');serviceLightboxTrigger?.focus();serviceLightboxTrigger=null;
+}
+function openServiceLightbox(item,image){
+  if(!serviceLightbox||!serviceLightboxImage||!serviceLightboxCaption)return;
+  serviceLightboxTrigger=item;serviceLightboxImage.src=image.currentSrc||image.src||image.dataset.src;serviceLightboxImage.alt=image.alt;serviceLightboxCaption.textContent=image.alt;
+  serviceLightbox.hidden=false;serviceModal?.classList.add('lightbox-open');serviceLightbox.querySelector('[data-service-lightbox-close]')?.focus();
+}
+function closeService(){closeServiceLightbox();if(serviceModal?.open)serviceModal.close()}
 
 let serviceImageObserver=null;
 function loadServiceImage(image){
@@ -214,7 +227,7 @@ function buildServiceCollections(collections){
     const title=document.createElement('h3');title.textContent=collection.title;
     const description=document.createElement('p');description.textContent=collection.description;
     const gallery=document.createElement('div');gallery.className='service-detail-gallery';
-    gallery.replaceChildren(...collection.images.map(([src,alt])=>{const figure=document.createElement('figure');const image=document.createElement('img');image.dataset.src=src;image.alt=alt;image.loading='lazy';image.decoding='async';image.fetchPriority='low';figure.append(image);return figure}));
+    gallery.replaceChildren(...collection.images.map(([src,alt])=>{const figure=document.createElement('figure');figure.className='service-gallery-item';figure.setAttribute('role','button');figure.setAttribute('aria-label',`Expand ${alt}`);figure.tabIndex=0;const image=document.createElement('img');image.dataset.src=src;image.alt=alt;image.loading='lazy';image.decoding='async';image.fetchPriority='low';figure.append(image);figure.addEventListener('click',()=>openServiceLightbox(figure,image));figure.addEventListener('keydown',event=>{if(!['Enter',' '].includes(event.key))return;event.preventDefault();openServiceLightbox(figure,image)});return figure}));
     head.append(number,title,description);block.append(head,gallery);return block;
   }));
   const pending=[...host.querySelectorAll('img[data-src]')];
@@ -240,7 +253,11 @@ function openService(button){
 serviceOpeners.forEach(button=>button.addEventListener('click',()=>openService(button)));
 serviceClosers.forEach(button=>button.addEventListener('click',closeService));
 serviceModal?.addEventListener('click',event=>{if(event.target===serviceModal)closeService()});
-serviceModal?.addEventListener('close',()=>{document.body.classList.remove('service-modal-open');serviceTrigger?.focus()});
+serviceLightbox?.querySelectorAll('[data-service-lightbox-close]').forEach(button=>button.addEventListener('click',closeServiceLightbox));
+serviceLightbox?.addEventListener('click',event=>{if(event.target===serviceLightbox)closeServiceLightbox()});
+document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!serviceLightbox?.hidden){event.preventDefault();closeServiceLightbox()}});
+serviceModal?.addEventListener('cancel',event=>{if(serviceLightbox?.hidden)return;event.preventDefault();closeServiceLightbox()});
+serviceModal?.addEventListener('close',()=>{closeServiceLightbox();document.body.classList.remove('service-modal-open');serviceTrigger?.focus()});
 
 const atmosphere=document.querySelector('.image-atmosphere');
 const atmosphereImages={'services.html':'assets/work/shell-field-production.jpg','clients.html':'assets/work/conference-audience.jpg'};
