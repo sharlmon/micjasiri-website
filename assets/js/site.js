@@ -106,6 +106,44 @@ workFilters.forEach((button,index)=>{
 });
 if(workFilters.length)selectWorkPanel(workFilters.find(button=>button.getAttribute('aria-selected')==='true')?.dataset.workFilter||workFilters[0].dataset.workFilter);
 
+const portfolioGalleryProfiles={
+  events:{client:'BizBazaar Festival',service:'Events & live',preview:'Video · Photography · Live coverage',summary:'Mic-Jasiri documented the festival from inside the action, capturing performances, audience energy and the production process across a complete visual record.',deliverables:'Event video production|Festival photography|Live coverage|Highlight reels',link:'project-bizbazaar.html'},
+  conference:{client:'50 Women on Board',service:'Conference & livestreaming',preview:'Conference video · Photography',summary:'Mic-Jasiri captured speakers, participants and defining programme moments while providing an unobtrusive visual record of the Nairobi conference.',deliverables:'Conference video production|Event photography|Speaker coverage|Audience coverage',link:'project-women-on-board.html'},
+  archive:{client:'Mic-Jasiri Productions',service:'Production archive',preview:'Crew · Cameras · Production systems',summary:'A behind-the-scenes view of the people, equipment and production workflows Mic-Jasiri brings together on location and in live environments.',deliverables:'Production planning|Camera crew|Location production|Technical direction',link:'about.html',linkLabel:'Explore the production house',items:[
+    {client:'50 Women on Board',service:'Livestreaming & control',preview:'Multi-camera · Live control',summary:'A coordinated live-production workflow created to cover the conference programme reliably across cameras, sound and stream delivery.',deliverables:'Multi-camera direction|Livestream control|Programme recording|Technical production',link:'project-women-on-board.html'},
+    {},{},
+    {client:'Manama Spa',service:'Commercial production',preview:'Commercial · Camera setup',summary:'A working view of the camera and production setup used to shape polished campaign imagery and a concise commercial presentation.',deliverables:'Commercial production|Campaign imagery|Camera crew|Post-production',link:'project-manama.html'},
+    {client:'50 Women on Board',service:'Conference production',preview:'Conference · Camera coverage',summary:'Camera placement and production planning designed to capture speakers, audience reactions and the full conference experience.',deliverables:'Conference filming|Speaker coverage|Audience coverage|Event photography',link:'project-women-on-board.html'},
+    {client:'BizBazaar Festival',service:'Live production',preview:'Events · Live workflow',summary:'Event-production equipment and crew workflows supporting live coverage, performance photography and festival highlight content.',deliverables:'Live coverage|Event video production|Festival photography|Highlight reels',link:'project-bizbazaar.html'}
+  ]}
+};
+
+function addPortfolioPreview(target,profile){
+  const preview=document.createElement('span');preview.className='portfolio-story-preview';
+  const clientLabel=document.createElement('small');clientLabel.textContent='Client';
+  const client=document.createElement('strong');client.textContent=profile.client;
+  const workLabel=document.createElement('small');workLabel.textContent='What we did';
+  const work=document.createElement('span');work.textContent=profile.preview;
+  preview.append(clientLabel,client,workLabel,work);target.append(preview);
+}
+
+function configurePortfolioTarget(target,profile,index){
+  const image=target.querySelector('img');
+  const caption=target.querySelector('figcaption')?.textContent.trim()||target.querySelector('h3')?.textContent.trim()||'Production story';
+  target.classList.add('portfolio-story');target.dataset.portfolioOpen='';target.setAttribute('role','button');target.setAttribute('aria-haspopup','dialog');target.setAttribute('aria-label',`${caption}: open project brief`);target.tabIndex=0;
+  Object.assign(target.dataset,{title:caption,index,service:profile.service,client:profile.client,image:image?.getAttribute('src')||'',alt:image?.alt||caption,summary:profile.summary,deliverables:profile.deliverables,link:profile.link,linkLabel:profile.linkLabel||'View full case study'});
+  addPortfolioPreview(target,profile);
+  target.addEventListener('keydown',event=>{if(!['Enter',' '].includes(event.key))return;event.preventDefault();openPortfolio(target)});
+}
+
+['events','conference','archive'].forEach((key,panelIndex)=>{
+  const base=portfolioGalleryProfiles[key];
+  document.querySelectorAll(`#panel-${key} .portfolio-shot`).forEach((shot,itemIndex)=>configurePortfolioTarget(shot,{...base,...(base.items?.[itemIndex]||{})},`${panelIndex+2}.${itemIndex+1}`));
+});
+
+const commercialFeature=document.querySelector('#panel-commercial .portfolio-feature');
+if(commercialFeature)configurePortfolioTarget(commercialFeature,{client:'Manama Spa',service:'Digital commercial',preview:'Commercial · Digital strategy',summary:'Mic-Jasiri shaped a concise commercial presentation around the Manama experience, pairing production craft with digital strategy.',deliverables:'TV commercial production|Digital strategy|Campaign imagery|Post-production',link:'project-manama.html'},'04');
+
 const portfolioModal=document.querySelector('[data-portfolio-modal]');
 const portfolioOpeners=[...document.querySelectorAll('[data-portfolio-open]')];
 const portfolioClosers=[...document.querySelectorAll('[data-portfolio-close]')];
@@ -130,7 +168,7 @@ function openPortfolio(card){
   const deliverables=portfolioModal.querySelector('[data-portfolio-deliverables]');
   if(deliverables){deliverables.replaceChildren(...card.dataset.deliverables.split('|').map(item=>{const tag=document.createElement('span');tag.textContent=item;return tag}))}
   if(image){image.src=card.dataset.image;image.alt=card.dataset.alt}
-  if(link)link.href=card.dataset.link;
+  if(link){link.href=card.dataset.link;link.textContent=card.dataset.linkLabel||'View full case study'}
   portfolioModal.showModal();
   document.body.classList.add('portfolio-modal-open');
 }
