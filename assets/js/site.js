@@ -197,9 +197,16 @@ let serviceTrigger=null;
 
 function closeService(){if(serviceModal?.open)serviceModal.close()}
 
+let serviceImageObserver=null;
+function loadServiceImage(image){
+  if(!image.dataset.src)return;
+  image.src=image.dataset.src;delete image.dataset.src;
+}
+
 function buildServiceCollections(collections){
   const host=serviceModal?.querySelector('[data-service-collections]');
   if(!host)return;
+  serviceImageObserver?.disconnect();
   host.replaceChildren(...collections.map((collection,index)=>{
     const block=document.createElement('section');block.className='service-detail-block';
     const head=document.createElement('div');head.className='service-detail-head';
@@ -207,9 +214,15 @@ function buildServiceCollections(collections){
     const title=document.createElement('h3');title.textContent=collection.title;
     const description=document.createElement('p');description.textContent=collection.description;
     const gallery=document.createElement('div');gallery.className='service-detail-gallery';
-    gallery.replaceChildren(...collection.images.map(([src,alt])=>{const figure=document.createElement('figure');const image=document.createElement('img');image.src=src;image.alt=alt;image.loading='lazy';figure.append(image);return figure}));
+    gallery.replaceChildren(...collection.images.map(([src,alt])=>{const figure=document.createElement('figure');const image=document.createElement('img');image.dataset.src=src;image.alt=alt;image.loading='lazy';image.decoding='async';image.fetchPriority='low';figure.append(image);return figure}));
     head.append(number,title,description);block.append(head,gallery);return block;
   }));
+  const pending=[...host.querySelectorAll('img[data-src]')];
+  const root=serviceModal.querySelector('.service-modal-shell');
+  if('IntersectionObserver' in window&&root){
+    serviceImageObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{if(!entry.isIntersecting)return;loadServiceImage(entry.target);serviceImageObserver.unobserve(entry.target)}),{root,rootMargin:'320px 0px'});
+    pending.forEach(image=>serviceImageObserver.observe(image));
+  }else pending.forEach(loadServiceImage);
 }
 
 function openService(button){
@@ -218,7 +231,7 @@ function openService(button){
   serviceTrigger=button;
   const set=(selector,value)=>{const target=serviceModal.querySelector(selector);if(target)target.textContent=value};
   set('[data-service-number]',service.number);set('[data-service-title]',service.title);set('[data-service-summary]',service.summary);set('[data-service-lead]',service.lead);set('[data-service-description]',service.description);
-  const image=serviceModal.querySelector('[data-service-image]');if(image){image.src=service.image;image.alt=service.alt}
+  const image=serviceModal.querySelector('[data-service-image]');if(image){image.src=service.image;image.alt=service.alt;image.decoding='async';image.fetchPriority='high'}
   const offerings=serviceModal.querySelector('[data-service-offerings]');if(offerings)offerings.replaceChildren(...service.offerings.map(item=>{const tag=document.createElement('span');tag.textContent=item;return tag}));
   buildServiceCollections(service.collections);
   serviceModal.showModal();serviceModal.querySelector('.service-modal-shell')?.scrollTo(0,0);document.body.classList.add('service-modal-open');
