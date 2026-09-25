@@ -293,3 +293,80 @@ const video=document.querySelector('video');
 const reduced=matchMedia('(prefers-reduced-motion: reduce)');
 if(video&&reduced.matches)video.pause();
 reduced.addEventListener?.('change',event=>{if(!video)return;event.matches?video.pause():video.play().catch(()=>{})});
+
+// Video modal player for Key Achievement Projects
+const videoModal=document.querySelector('[data-video-modal]');
+if(videoModal){
+  const iframe=videoModal.querySelector('#videoModalIframe');
+  const titleEl=videoModal.querySelector('#videoModalTitle');
+  const roleEl=videoModal.querySelector('#videoModalRole');
+  const externalEl=videoModal.querySelector('#videoModalExternal');
+  const closeBtn=videoModal.querySelector('[data-video-close]');
+  let lastTrigger=null;
+
+  function openVideoModal(videoId,title,role,externalUrl,trigger){
+    lastTrigger=trigger;
+    if(titleEl)titleEl.textContent=title||'';
+    if(roleEl)roleEl.textContent=role||'';
+    if(externalEl){
+      if(externalUrl){
+        externalEl.href=externalUrl;
+        externalEl.style.display='inline-flex';
+      }else{
+        externalEl.style.display='none';
+      }
+    }
+    if(iframe){
+      iframe.src=`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&playsinline=1`;
+    }
+    if(typeof videoModal.showModal==='function'){
+      videoModal.showModal();
+    }else{
+      videoModal.setAttribute('open','');
+    }
+    document.body.classList.add('video-modal-open');
+  }
+
+  function closeVideoModal(){
+    if(iframe)iframe.src='';
+    if(typeof videoModal.close==='function'){
+      videoModal.close();
+    }else{
+      videoModal.removeAttribute('open');
+    }
+    document.body.classList.remove('video-modal-open');
+    if(lastTrigger&&typeof lastTrigger.focus==='function'){
+      lastTrigger.focus();
+    }
+  }
+
+  closeBtn?.addEventListener('click',closeVideoModal);
+  videoModal.addEventListener('close',closeVideoModal);
+
+  videoModal.addEventListener('click',event=>{
+    if(event.target===videoModal)closeVideoModal();
+  });
+
+  document.querySelectorAll('[data-video-id]').forEach(btn=>{
+    btn.addEventListener('click',event=>{
+      event.preventDefault();
+      const videoId=btn.getAttribute('data-video-id');
+      const title=btn.getAttribute('data-video-title');
+      const role=btn.getAttribute('data-video-role');
+      const url=btn.getAttribute('data-video-url');
+      if(videoId){
+        openVideoModal(videoId,title,role,url,btn);
+      }
+    });
+    // Support enter / space key on div triggers with role=button
+    if(btn.tagName==='DIV'&&btn.getAttribute('role')==='button'){
+      btn.addEventListener('keydown',event=>{
+        if(event.key==='Enter'||event.key===' '){
+          event.preventDefault();
+          btn.click();
+        }
+      });
+    }
+  });
+}
+

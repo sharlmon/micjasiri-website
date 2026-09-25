@@ -157,3 +157,48 @@ html[data-theme="light"] .achievement-badge{background:rgba(255,255,255,.85)}
   .achievement-actions .achievement-link{width:100%;justify-content:center}
 }
 
+/* Video Modal & Cinema Lightbox */
+.video-modal{width:min(980px,calc(100% - 32px));padding:0;border:1px solid rgba(245,241,232,.18);border-radius:20px;background:rgba(10,10,10,.95);color:var(--text);box-shadow:0 36px 100px rgba(0,0,0,.85);overflow:hidden;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
+.video-modal::backdrop{background:rgba(0,0,0,.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.video-modal[open]{animation:video-modal-in .34s cubic-bezier(.16,1,.3,1)}
+@keyframes video-modal-in{from{opacity:0;transform:scale(.95) translateY(14px)}to{opacity:1;transform:none}}
+.video-modal-shell{position:relative;display:flex;flex-direction:column}
+.video-modal-close{position:absolute;z-index:10;top:14px;right:14px;width:38px;height:38px;border:1px solid rgba(255,255,255,.2);border-radius:50%;background:rgba(0,0,0,.65);color:#fff;font:300 24px/1 var(--sans);cursor:pointer;display:grid;place-items:center;transition:background .2s,border-color .2s;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.video-modal-close:hover{background:var(--yellow);color:#090909;border-color:var(--yellow)}
+.video-modal-player-wrap{position:relative;width:100%;aspect-ratio:16/9;background:#000;overflow:hidden}
+.video-modal-iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.video-modal-footer{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:18px 24px;border-top:1px solid var(--line);background:color-mix(in srgb,var(--surface) 95%,transparent)}
+.video-modal-info{display:flex;align-items:center;gap:12px;min-width:0}
+.video-modal-title{margin:0;font:400 clamp(18px,2vw,24px)/1.2 var(--sans);letter-spacing:-.8px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.video-modal-role{padding:3px 9px;border:1px solid var(--line-strong);border-radius:999px;font:500 8px/1.2 var(--cond);letter-spacing:1.2px;text-transform:uppercase;color:var(--yellow);white-space:nowrap}
+.video-modal-ext-link{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font:500 9px/1 var(--cond);letter-spacing:1.4px;text-transform:uppercase;text-decoration:none;transition:color .2s;white-space:nowrap}
+.video-modal-ext-link:hover{color:var(--yellow)}
+.video-modal-open{overflow:hidden}
+
+/* Media Play Overlay */
+.achievement-media.has-video{cursor:pointer}
+.media-play-btn{position:absolute;z-index:3;top:50%;left:50%;transform:translate(-50%,-50%);width:54px;height:54px;border-radius:50%;background:rgba(9,9,9,.72);border:1.5px solid var(--yellow);color:var(--yellow);display:grid;place-items:center;font-size:16px;padding-left:3px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 8px 24px rgba(0,0,0,.5);transition:transform .3s cubic-bezier(.2,.8,.2,1),background .2s,color .2s}
+.achievement-card:hover .media-play-btn,.achievement-media.has-video:focus-visible .media-play-btn{transform:translate(-50%,-50%) scale(1.12);background:var(--yellow);color:#090909}
+.play-icon{display:inline-block;font-size:11px;margin-right:2px}
+.play-video-trigger{cursor:pointer}
+button.achievement-link{appearance:none;font-family:inherit}
+
+/* Founder achievements button styling */
+.founder-achievement-btn{appearance:none;background:none;border:none;padding:0;margin:0;font:inherit;text-align:left;cursor:pointer;display:inline-flex;align-items:center;gap:8px;color:var(--text);font-size:13px;transition:color .2s}
+.founder-achievement-btn:hover{color:var(--yellow)}
+.founder-achievement-btn:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
+.play-tag{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:999px;background:rgba(221,169,47,.12);color:var(--yellow);font:500 8px/1.2 var(--cond);letter-spacing:1px;text-transform:uppercase}
+
+html[data-theme="light"] .video-modal{background:rgba(246,242,234,.98);border-color:rgba(23,20,15,.15);box-shadow:0 36px 100px rgba(45,35,20,.35)}
+html[data-theme="light"] .video-modal-footer{background:rgba(240,235,225,.95)}
+html[data-theme="light"] .video-modal-close{background:rgba(255,255,255,.8);color:#111;border-color:rgba(0,0,0,.15)}
+html[data-theme="light"] .video-modal-close:hover{background:var(--yellow);color:#090909}
+
+@media(max-width:680px){
+  .video-modal{width:calc(100% - 20px);border-radius:14px}
+  .video-modal-footer{flex-direction:column;align-items:flex-start;gap:10px;padding:14px 16px}
+  .video-modal-title{font-size:16px}
+  .video-modal-close{top:10px;right:10px;width:34px;height:34px;font-size:20px}
+}
+
+
